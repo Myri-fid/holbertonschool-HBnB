@@ -7,7 +7,7 @@ direction TB
 	    +String lastName
 	    +String email
 	    -String _password
-	    +String statut
+	    +bool is_admin
 	    +List roles
 	    +createReview()
 	    +updateUser()
