@@ -2,7 +2,9 @@
 """
 This file provide an user class
 """
+import re
 Base_class = __import__("base_class").Baseclass
+
 
 class User(Base_class):
     """
@@ -14,3 +16,15 @@ class User(Base_class):
         self.last_name = last_name
         self.email = email
         self.is_admin = is_admin
+        self.place = []
+
+    @property
+    def get_first_name(self):
+        return self._first_name
+
+    @first_name.setter
+    def first_name(self, value):
+        if re.match(r"^[A-Z][a-z]+$", value, re.UNICODE) is not None:
+            self._first_name = value
+        else:
+            raise ValueError("Wrong input !")
