@@ -14,8 +14,3 @@ class User(Base_class):
         self.last_name = last_name
         self.email = email
         self.is_admin = is_admin
-
-
-user1 = User("Hilliass", "Soumahill", "Hilliass@mail.com", False)
-
-print(user1.created_at)
