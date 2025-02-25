@@ -54,6 +54,15 @@ class User(Base_class):
             raise ValueError("The format is wrong !")
 
     @property
+    def is_admin(self):
+        return self._is_admin
+
+    @is_admin.setter
+    def is_admin(self, value):
+        if value == True or value == False:
+            self._is_admin = value
+
+    @property
     def place(self):
         return self._place
 
