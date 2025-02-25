@@ -34,6 +34,9 @@ class Place(Baseclass):
         if owner is not None and not isinstance(owner, User):
             raise TypeError("Owner inexistant")
 
+        self.created_at = datetime.now()
+        self.updated_at = datetime.now()
+
     def __str__(self):
         return f"Place: {self.title}
         (Owner: {self.owner.full_name() if self.owner else 'No Owner'})"
