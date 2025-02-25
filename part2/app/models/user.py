@@ -10,9 +10,9 @@ class User(Base_class):
     """
     This class represent an user
     """
-    def __init__(self, first_name, last_name, email, is_admin):
+    def __init__(self, first_name, last_name, email, is_admin=False):
         super().__init__()
-        self._first_namefirst_name = first_name
+        self._first_name = first_name
         self._last_name = last_name
         self._email = email
         self._is_admin = is_admin
@@ -37,7 +37,7 @@ class User(Base_class):
     @last_name.setter
     def last_name(self, value):
         if re.match(r"^[A-Za-z][a-zA-Z]{2,49}+$", value, re.UNICODE):
-            self._first_name = value
+            self._last_name = value
         else:
             raise ValueError("Wrong input !")
 
