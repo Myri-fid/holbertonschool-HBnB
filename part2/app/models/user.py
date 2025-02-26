@@ -3,10 +3,10 @@
 This file provide an user class
 """
 import re
-Base_class = __import__("base_class").Baseclass
+from .base_class import Baseclass
 
 
-class User(Base_class):
+class User(Baseclass):
     """
     This class represent an user
     """
