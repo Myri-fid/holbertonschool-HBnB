@@ -23,17 +23,16 @@ class UserList(Resource):
         """Register a new user"""
         user_data = api.payload
 
-        # Simulate email uniqueness check
-        # (to be replaced by real validation with persistence)
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
-            return {'error': 'Email already registered'}, 400
+            api.abort(400, "Email already registred")
 
-        new_user = facade.create_user(user_data)
-        return {'id': new_user.id, 'first_name':
-                new_user.first_name, 'last_name':
-                new_user.last_name, 'email': new_user.email}, 201
-
+        try:
+            new_user = facade.create_user(user_data)
+        except (ValueError, TypeError) as e:
+            api.abort(400, str(e))
+        
+        return new_user.display(), 200
 
 @api.route('/<user_id>')
 class UserResource(Resource):
@@ -48,9 +47,9 @@ class UserResource(Resource):
                 user.first_name, 'last_name':
                 user.last_name, 'email': user.email}, 200
 
-@api.route('/<user_id')
-class updateResource(Resource):
-    @api.expect(user_model, validate=True)
-    @api.response(200, 'User is successfully updated')
-    @api.response(404, 'User doesn\'t exist')
-    @api.response(400, 'Invalid input data')
+# @api.route('/<user_id')
+# class updateResource(Resource):
+#     @api.expect(user_model, validate=True)
+#     @api.response(200, 'User is successfully updated')
+#     @api.response(404, 'User doesn\'t exist')
+#     @api.response(400, 'Invalid input data')
