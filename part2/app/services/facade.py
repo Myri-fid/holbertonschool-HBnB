@@ -15,7 +15,16 @@ class HBnBFacade:
 
     def get_user_by_email(self, email):
         return self.user_repo.get_by_attribute('email', email)
-    
+
+
+    def get_all_users(self):
+        list_users = self.user_repo.get_all()
+        return [user.display() for user in list_users]
+
+    def update_user(self, user_id, user_data):
+        self.user_repo.update(user_id, user_data)
+        return self.user_repo.get(user_id)
+
     def create_review(self, review_data):
         review = Review(**review_data)
         self.review_repo.add(review)
@@ -39,3 +48,4 @@ class HBnBFacade:
         review = self.review_repo.get(review_id)
         self.review_repo.delete(review)
         return review
+
