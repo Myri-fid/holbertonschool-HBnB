@@ -1,7 +1,7 @@
 from app.models.user import User
 from app.models.review import Review
 # from app.models.place import Place
-# from app.models.amenity import Amenity
+from app.models.amenity import Amenity
 from app.persistence.repository import InMemoryRepository
 
 class HBnBFacade:
@@ -52,3 +52,24 @@ class HBnBFacade:
         review = self.review_repo.get(review_id)
         self.review_repo.delete(review)
         return review
+
+   # Amenity methods
+    def create_amenity(self, amenity_data):
+        amenity = Amenity(**amenity_data)
+        self.amenity_repo.add(amenity)
+        return amenity
+
+    def get_amenity(self, amenity_id):
+        return self.amenity_repo.get(amenity_id)
+
+    def get_all_amenities(self):
+        return self.amenity_repo.get_all()
+
+    def update_amenity(self, amenity_id, amenity_data):
+        self.amenity_repo.update(amenity_id, amenity_data)
+        return self.amenity_repo.get(amenity_id)
+
+    def delete_amenity(self, amenity_id):
+        amenity = self.amenity_repo.get(amenity_id)
+        self.amenity_repo.delete(amenity)
+        return amenity
