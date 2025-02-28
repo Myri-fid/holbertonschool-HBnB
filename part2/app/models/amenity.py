@@ -17,10 +17,11 @@ class Amenity(Baseclass):
 from datetime import datetime
 import uuid
 
-Base_class = __import__("base_class").Baseclass
+from app.models.base_class import Baseclass
 
 
-class Amenity(Base_class):
+
+class Amenity(Baseclass):
     """To create attibutes for the Class"""
     def __init__(self, name, *args, **kwargs):
         super().__init__(*args, **kwargs)
