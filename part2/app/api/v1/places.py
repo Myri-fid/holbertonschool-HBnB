@@ -73,4 +73,4 @@ class PlaceResource(Resource):
             updated_place = facade.update_place(place_id, place_data)
             return updated_place, 200
         except ValueError as e:
-            return {'Error': str(e)}, 400 
+            return {'Error': str(e)}, 400
