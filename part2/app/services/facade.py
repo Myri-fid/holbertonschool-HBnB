@@ -1,4 +1,7 @@
-from app.models.user import User, Review
+from app.models.user import User
+from app.models.review import Review
+# from app.models.place import Place
+# from app.models.amenity import Amenity
 from app.persistence.repository import InMemoryRepository
 
 class HBnBFacade:
@@ -25,28 +28,28 @@ class HBnBFacade:
         self.user_repo.update(user_id, user_data)
         return self.user_repo.get(user_id)
 
-    # Review methods
-    def create_review(self, review_data):
-        review = Review(**review_data)
-        self.review_repo.add(review)
-        return review
+    # # Review methods
+    # def create_review(self, review_data):
+    #     review = Review(**review_data)
+    #     self.review_repo.add(review)
+    #     return review
     
-    def get_review(self, review_id):
-        return self.review_repo.get(review_id)
+    # def get_review(self, review_id):
+    #     return self.review_repo.get(review_id)
     
-    def get_all_reviews(self):
-        return self.review_repo.get_all()
+    # def get_all_reviews(self):
+    #     return self.review_repo.get_all()
     
-    def get_reviews_by_place(self, place_id):
-        return self.review_repo.get_by_attribute('place', place_id)
+    # def get_reviews_by_place(self, place_id):
+    #     return self.review_repo.get_by_attribute('place', place_id)
     
-    def update_review(self, review_id, data):
-        review = self.review_repo.get(review_id)
-        review.update(data)
-        return review
+    # def update_review(self, review_id, data):
+    #     review = self.review_repo.get(review_id)
+    #     review.update(data)
+    #     return review
     
-    def delete_review(self, review_id):
-        review = self.review_repo.get(review_id)
-        self.review_repo.delete(review)
-        return review
+    # def delete_review(self, review_id):
+    #     review = self.review_repo.get(review_id)
+    #     self.review_repo.delete(review)
+    #     return review
 

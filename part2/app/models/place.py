@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from base_class import Baseclass
+from app.models.base_class import Baseclass
 from user import User
 """
 Création class Place

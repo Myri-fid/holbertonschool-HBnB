@@ -1,9 +1,6 @@
-from app.models.base_class import BaseClass
-from place import Place
-from user import User
+from app.models.base_class import Baseclass
 
-
-class Review(BaseClass):
+class Review(Baseclass):
     def __init__(self, text, rating, place, user):
         super().__init__()
         self.text = text
