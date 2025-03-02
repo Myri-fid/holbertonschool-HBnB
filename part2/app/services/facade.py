@@ -30,6 +30,10 @@ class HBnBFacade:
     def update_user(self, user_id, user_data):
         self.user_repo.update(user_id, user_data)
         return self.user_repo.get(user_id)
+    def delete_user(self, user_id):
+        user = self.user_repo.get(user_id)
+        self.user_repo.delete(user)
+        return user
 
     # Review methods
     def create_review(self, review_data):
