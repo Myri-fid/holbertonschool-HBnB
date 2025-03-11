@@ -127,8 +127,4 @@ def test_delete_user(client):
     response = client.delete(f"/api/v1/users/{user_id}")
     assert response.status_code == 204
     response = client.get(f"/api/v1/users/{user_id}")
-<<<<<<< HEAD
     assert response.status_code == 404
-=======
-    assert response.status_code == 404
->>>>>>> 8d82e78 (Add testing for user and endpoint api)
