@@ -23,7 +23,7 @@ class ReviewList(Resource):
         if not review_data:
             return {'Error': 'Invalid input data'}, 400
 
-        user_id = review_data.get('user')
+        user_id = review_data.get('user_id')
         if user_id:
             user = facade.get_user(user_id)
             if not user:
