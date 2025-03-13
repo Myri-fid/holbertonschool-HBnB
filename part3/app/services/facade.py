@@ -3,6 +3,7 @@ from app.models.review import Review
 from app.models.place import Place
 from app.models.amenity import Amenity
 from app.persistence.repository import InMemoryRepository
+from app import bcrypt
 
 class HBnBFacade:
     def __init__(self):
@@ -13,6 +14,8 @@ class HBnBFacade:
 
     # User methods
     def create_user(self, user_data):
+        hashed_password = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
+        user_data['password'] = hashed_password
         user = User(**user_data)
         self.user_repo.add(user)
         return user

@@ -3,8 +3,12 @@
 This file provide an user class
 """
 import re
+from flask import Flask
 from .base_class import Baseclass
+from flask_bcrypt import Bcrypt
 
+app = Flask(__name__)
+bcrypt = Bcrypt(app)
 
 class User(Baseclass):
     """
@@ -88,5 +92,7 @@ class User(Baseclass):
     
     def verify_password(self, password):
         """Verifies if the provided password matches the hashed password."""
+        if not self.password:
+            return False 
         return bcrypt.check_password_hash(self.password, password)
     

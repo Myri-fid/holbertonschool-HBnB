@@ -75,6 +75,8 @@ class UserResource(Resource):
                 user.first_name, 'last_name':
                 user.last_name, 'email': user.email}, 200
 
+    
+
     @api.expect(user_model)
     @api.response(201, 'User successfully updated')
     @api.response(404, 'User not found')
