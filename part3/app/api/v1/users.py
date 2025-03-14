@@ -1,5 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from app.models.user import Userser
 import re
 
 api = Namespace('users', description='User operations')
@@ -15,6 +16,7 @@ user_model = api.model('User', {
                               description='password of the user')
 })
 
+users_db = {}
 
 @api.route('/')
 class UserList(Resource):
@@ -25,6 +27,7 @@ class UserList(Resource):
     def post(self):
         """Register a new user"""
         user_data = api.payload
+        new_user.hash_password(user_data['password'])
 
         if not user_data["first_name"] or not user_data["last_name"] or not user_data["email"]:
             api.abort(400, "invalid input data")

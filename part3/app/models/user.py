@@ -88,11 +88,20 @@ class User(Baseclass):
     
     def hash_password(self, password):
         """Hashes the password before storing it."""
+        if not password:
+            raise ValueError("Le mot de passe incorrect.")
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
     
     def verify_password(self, password):
         """Verifies if the provided password matches the hashed password."""
         if not self.password:
-            return False 
+            raise ValueError("Le mot de passe incorrect.") 
         return bcrypt.check_password_hash(self.password, password)
-    
+
+    def to_dict(self):
+        """ convers en dict éviter d'inclure le mpd """
+        return {
+            "email": self.email,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+        }
