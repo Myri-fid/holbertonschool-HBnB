@@ -1,17 +1,20 @@
+#!/usr/bin/python3
+"""
+This file provide an user class
+"""
 import re
-import bcrypt
 from .base_class import Baseclass
+
 
 class User(Baseclass):
     """
-    This class represents a user with secure password handling
+    This class represent an user
     """
-    def __init__(self, first_name, last_name, email, password, is_admin=False):
+    def __init__(self, first_name, last_name, email, is_admin=False):
         super().__init__()
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
-        self.password = password
         self.is_admin = is_admin
         self._place = []
 
@@ -53,20 +56,6 @@ class User(Baseclass):
         if not re.match(pattern, value):
             raise ValueError("email format is incorrect")
         self._email = value
-
-    @property
-    def password(self):
-        return self._password
-
-    @password.setter
-    def password(self, value):
-        if not isinstance(value, str) or len(value) < 6:
-            raise ValueError("Password must be at least 6 characters long")
-        self._password = bcrypt.hashpw(value.encode(), bcrypt.gensalt()).decode()
-
-    def verify_password(self, password):
-        """Verify if the provided password matches the stored hash."""
-        return bcrypt.checkpw(password.encode(), self._password.encode())
 
     @property
     def is_admin(self):
