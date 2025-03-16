@@ -1,56 +1,47 @@
 import uuid
 from datetime import datetime
 from app.models.base_class import Baseclass
-from app.models.user import User
-from app.models.amenity import Amenity
+from app import db
+from sqlalchemy.orm import relationship
 
-
-"""
-Création class Place
-"""
-
-
-class Place(Baseclass):
+class Place(Baseclass, db.Model):
     """
-    Création class Place
+    Place class representing a location available for rent.
     """
+    __tablename__ = 'places'
 
-    def __init__(self, title, price, latitude, longitude, owner, owner_id, description=""):
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(200))
+    price = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    owner_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    rating = db.Column(db.Integer, default=0)
+
+    owner = relationship('User', back_populates='places')
+    reviews = relationship('Review', back_populates='place', cascade="all, delete-orphan")
+    amenities = relationship('Amenity', secondary="place_amenities", back_populates='places')
+
+    def __init__(self, title, price, latitude, longitude, owner_id, description=""):
         super().__init__()
-        self.place_id = str(uuid.uuid4())
         self.title = title
         self.description = description
         self.price = price
         self.latitude = latitude
         self.longitude = longitude
-        self.owner = owner
         self.owner_id = owner_id
-        self.reviews = []
-        self.amenities = []
+        self.validate()
 
-        if not isinstance(title, str) or len(title) > 100:
-            raise ValueError("Titre trop long")
-        if not isinstance(price, (float, int)) or price <= 0:
-            raise ValueError("Le prix dois etre positif")
-        if not isinstance(latitude,
-                          (float, int)) or not (-90.0 <= latitude <= 90.0):
-            raise ValueError("Error 404")
-        if not isinstance(longitude,
-                          (float, int)) or not (-180.0 <= longitude <= 180.0):
-            raise ValueError("Error 404")
-        if owner is not None and not isinstance(owner, User):
-            raise TypeError("Owner inexistant")
-        if not isinstance(owner_id, str):
-            raise TypeError("L'ID du propriétaire est invalide")
-
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
-
-    def add_review(self, review):
-        self.reviews.append(review)
-
-    def add_amenity(self, amenity):
-        self.amenities.append(amenity)
+    def validate(self):
+        if not isinstance(self.title, str) or len(self.title) > 100:
+            raise ValueError("Title is too long or not a string")
+        if not isinstance(self.price, (float, int)) or self.price <= 0:
+            raise ValueError("Price must be a positive number")
+        if not isinstance(self.latitude, (float, int)) or not (-90.0 <= self.latitude <= 90.0):
+            raise ValueError("Invalid latitude value")
+        if not isinstance(self.longitude, (float, int)) or not (-180.0 <= self.longitude <= 180.0):
+            raise ValueError("Invalid longitude value")
 
     def __str__(self):
-        return f"Place: {self.title} (Owner: {self.owner() if self.owner else 'No Owner'})"
+        return f"Place: {self.title} (Owner ID: {self.owner_id})"
