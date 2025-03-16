@@ -4,6 +4,7 @@ This file provides a User class
 """
 import re
 from flask import Flask
+from app import bcrypt
 from .base_class import Baseclass
 from flask_bcrypt import Bcrypt
 
@@ -90,6 +91,8 @@ class User(Baseclass):
             raise ValueError("Password cannot be empty.")
         self._password = bcrypt.generate_password_hash(value).decode('utf-8')
 
+    password = db.Column(db.String(128), nullable=False)
+    
     def verify_password(self, password):
         """Verifies if the provided password matches the hashed password."""
         if not self._password:

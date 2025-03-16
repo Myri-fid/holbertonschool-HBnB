@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
+from app import bcrypt
 import re
 
 api = Namespace('users', description='User operations')
@@ -43,6 +44,22 @@ class UserResource(Resource):
 
         return updated_user.display(), 200
 
+    def get(self, user_id):
+        """Retrieve a user by ID"""
+        user = facade.get_user(user_id)
+
+        if not user:
+            return {'error': 'User not found'}, 404
+        return user.display(), 200
+
+    def display(self):
+        return {
+            'id': self.id,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'email': self.email
+        }
+
     @jwt_required()
     @api.response(204, 'User successfully deleted')
     @api.response(403, 'Unauthorized action')
@@ -60,3 +77,4 @@ class UserResource(Resource):
 
         facade.delete_user(user_id)
         return '', 204
+
