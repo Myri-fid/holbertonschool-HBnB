@@ -24,6 +24,14 @@ class User(Baseclass):
         self._place = []
         self.password = password  # Stocke le mot de passe haché directement
 
+    def display(self):
+        return {
+            'id': self.id,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'email': self.email
+    }
+
     @property
     def first_name(self):
         return self._first_name

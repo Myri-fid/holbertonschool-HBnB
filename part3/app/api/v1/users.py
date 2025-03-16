@@ -51,15 +51,7 @@ class UserResource(Resource):
         if not user:
             return {'error': 'User not found'}, 404
         return user.display(), 200
-
-    def display(self):
-        return {
-            'id': self.id,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
-            'email': self.email
-        }
-
+    
     @jwt_required()
     @api.response(204, 'User successfully deleted')
     @api.response(403, 'Unauthorized action')
