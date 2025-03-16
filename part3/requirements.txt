@@ -1,0 +1,5 @@
+flask
+flask-restx
+pytest
+flask-bcrypt
+flask-jwt-extended
