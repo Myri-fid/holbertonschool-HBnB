@@ -16,6 +16,7 @@ jwt = JWTManager()
 def create_app(config_class=DevelopmentConfig):
     # Créer une instance de l'application Flask
     app = Flask(__name__)
+    bcrypt.init_app(app)
     app.config.from_object(config_class)  # Charger la configuration
 
     # Initialiser JWTManager et Flask-Bcrypt
