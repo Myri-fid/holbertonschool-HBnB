@@ -1,68 +1,49 @@
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
-from app.models.user import Userser
 import re
 
 api = Namespace('users', description='User operations')
 
-# Define the user model for input validation and documentation
 user_model = api.model('User', {
-    'first_name': fields.String(required=True,
-                                description='First name of the user'),
-    'last_name': fields.String(required=True,
-                               description='Last name of the user'),
-    'email': fields.String(required=True, description='Email of the user'),
-    'password': fields.String(required=True,
-                              description='password of the user')
+    'first_name': fields.String(required=True, description='First name'),
+    'last_name': fields.String(required=True, description='Last name'),
+    'email': fields.String(required=True, description='Email'),
+    'password': fields.String(required=True, description='Password')
 })
-
-users_db = {}
 
 @api.route('/')
 class UserList(Resource):
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
-    @api.response(400, 'Email already registered')
-    @api.response(400, 'Invalid input data')
+    @api.response(400, 'Invalid input data or email already registered')
     def post(self):
         """Register a new user"""
         user_data = api.payload
-        new_user.hash_password(user_data['password'])
 
-        if not user_data["first_name"] or not user_data["last_name"] or not user_data["email"]:
-            api.abort(400, "invalid input data")
+        required_fields = ['first_name', 'last_name', 'email', 'password']
+        for field in required_fields:
+            if not isinstance(user_data.get(field, ''), str) or not user_data[field].strip():
+                api.abort(400, f"{field} must be a non-empty string")
 
-        if not user_data['first_name'] or not isinstance(user_data['first_name'], str):
-            api.abort(400, "first name must be a non-empty string")
-        
-        if not user_data['last_name'] or not isinstance(user_data['last_name'], str):
-            api.abort(400, "last name must be a non-empty string")
-
-        if not user_data['email'] or not isinstance(user_data['email'], str):
-            api.abort(400, "email is required")
-
-        if not isinstance(user_data['email'], str):
-            api.abort(400, "email must be a string")
-
-        email_pattern = r"^[a-zA-Z0-9_.-]+@[a-zA-Z-_]+\.[a-zA-Z]{2,}$"
+        email_pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$"
         if not re.match(email_pattern, user_data['email']):
-            api.abort(400, "Invalid input data: email format is incorrect")
+            api.abort(400, "Invalid email format")
 
-        existing_user = facade.get_user_by_email(user_data['email'])
-        if existing_user:
-            api.abort(400, "Email already registred")
+        if facade.get_user_by_email(user_data['email']):
+            api.abort(400, "Email already registered")
 
         try:
             new_user = facade.create_user(user_data)
         except (ValueError, TypeError) as e:
             api.abort(400, str(e))
-        
+
         return new_user.display(), 201
 
-    @api.response(200, "Successfully retrieved list")
+    @api.response(200, "Successfully retrieved users list")
     def get(self):
-        list_users = facade.get_all_users()
-        return list_users
+        """Retrieve all users"""
+        return facade.get_all_users()
 
 @api.route('/<user_id>')
 class UserResource(Resource):
@@ -73,46 +54,51 @@ class UserResource(Resource):
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
+        return user.display(), 200
 
-        return {'id': user.id, 'first_name':
-                user.first_name, 'last_name':
-                user.last_name, 'email': user.email}, 200
-
-    
-
+    @jwt_required()
     @api.expect(user_model)
-    @api.response(201, 'User successfully updated')
+    @api.response(200, 'User successfully updated')
+    @api.response(403, 'Unauthorized')
     @api.response(404, 'User not found')
-    @api.response(400, 'Email already registered')
-    @api.response(400, 'Invalid input data')
+    @api.response(400, 'Invalid input data or email already registered')
     def put(self, user_id):
-        """Update user"""
+        """Update user - Only the owner can modify their data (except email/password)"""
         user_data = api.payload
+        current_user_id = get_jwt_identity()
 
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
 
-        if "email" in user_data:
-            existing_user = facade.get_user_by_email(user_data['email'])
-            if existing_user and existing_user.id != user.id:
-                api.abort(400, "Email already registered by another user")
+        if str(user.id) != str(current_user_id):
+            return {'error': 'Unauthorized'}, 403
+
+        if 'email' in user_data or 'password' in user_data:
+            return {'error': 'Email and password cannot be updated'}, 400
 
         try:
             user.update(user_data)
             updated_user = facade.update_user(user_id, user.display())
         except (ValueError, TypeError) as e:
-            api.abort(400, f"error: {str(e)}")
+            api.abort(400, f"Error: {str(e)}")
 
-        return updated_user.display(), 201
+        return updated_user.display(), 200
 
+    @jwt_required()
     @api.response(204, 'User successfully deleted')
+    @api.response(403, 'Unauthorized')
     @api.response(404, 'User not found')
     def delete(self, user_id):
+        """Delete user - Only the owner can delete their account"""
+        current_user_id = get_jwt_identity()
+
         user = facade.get_user(user_id)
-        print(f"Tentative de suppression de l'utilisateur : {user}")
         if not user:
             return {'error': 'User not found'}, 404
+
+        if str(user.id) != str(current_user_id):
+            return {'error': 'Unauthorized'}, 403
 
         facade.delete_user(user_id)
         return '', 204
