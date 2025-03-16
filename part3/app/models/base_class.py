@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """
-This file provides attribute and methods accessible 
-bay other class 
+This file provides attributes and methods accessible by other classes.
 """
 
 import uuid
@@ -9,9 +8,6 @@ from datetime import datetime
 from app import db
 
 class Baseclass(db.Model):
-    def __init__(self):
-        from app import db
- 
     __abstract__ = True
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -19,11 +15,11 @@ class Baseclass(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def save(self):
-        """Update the updated_at timestamp whenever the object is modified"""
-        self.updated_at = datetime.now()
-    
+        self.updated_at = datetime.utcnow()
+        db.session.add(self)
+        db.session.commit()
+
     def update(self, data):
-        """Update the attributes of the object based on the provided dictionary"""
         for key, value in data.items():
             if hasattr(self, key):
                 setattr(self, key, value)
