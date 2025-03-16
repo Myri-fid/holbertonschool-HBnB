@@ -17,11 +17,12 @@ def create_app(config_class=DevelopmentConfig):
     # Créer une instance de l'application Flask
     app = Flask(__name__)
     app.config.from_object(config_class)  # Charger la configuration
-    bcrypt.init_app(app)
-    
+ 
     # Initialiser JWTManager et Flask-Bcrypt
     jwt.init_app(app)
     bcrypt.init_app(app)
+
+    return app
 
     # Initialiser l'API Flask-RESTx
     api = Api(app, version='1.0', title='HBnB API', description='HBnB Application API')
