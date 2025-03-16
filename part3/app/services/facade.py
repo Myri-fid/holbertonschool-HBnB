@@ -3,7 +3,6 @@ from app.models.review import Review
 from app.models.place import Place
 from app.models.amenity import Amenity
 from app.persistence.repository import InMemoryRepository
-from app import bcrypt
 
 class HBnBFacade:
     def __init__(self):

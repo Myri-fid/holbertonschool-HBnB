@@ -3,26 +3,23 @@
 This file provides a User class
 """
 import re
-from flask import Flask
-from app import bcrypt
+import uuid
 from .base_class import Baseclass
-from flask_bcrypt import Bcrypt
 
-app = Flask(__name__)
-bcrypt = Bcrypt(app)
+
 
 class User(Baseclass):
     """
     This class represents a user
     """
-    def __init__(self, first_name, last_name, email, password, is_admin=False):
-        super().__init__()
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.is_admin = is_admin
-        self._place = []
-        self.password = password  # Stocke le mot de passe haché directement
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
 
     def display(self):
         return {
