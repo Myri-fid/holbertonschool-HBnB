@@ -6,6 +6,7 @@ bay other class
 
 import uuid
 from datetime import datetime
+from app import db
 
 class Baseclass(db.Model):
     def __init__(self):
