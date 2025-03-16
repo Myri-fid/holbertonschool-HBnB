@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-This file provide an user class
+This file provides a User class
 """
 import re
 from flask import Flask
@@ -12,15 +12,16 @@ bcrypt = Bcrypt(app)
 
 class User(Baseclass):
     """
-    This class represent an user
+    This class represents a user
     """
-    def __init__(self, first_name, last_name, email, is_admin=False):
+    def __init__(self, first_name, last_name, email, password, is_admin=False):
         super().__init__()
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
         self.is_admin = is_admin
         self._place = []
+        self.password = password  # Stocke le mot de passe haché directement
 
     @property
     def first_name(self):
@@ -78,28 +79,34 @@ class User(Baseclass):
     def add_place(self, value):
         self._place.append(value)
 
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, value):
+        """Hashes the password before storing it."""
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("Password cannot be empty.")
+        self._password = bcrypt.generate_password_hash(value).decode('utf-8')
+
+    def verify_password(self, password):
+        """Verifies if the provided password matches the hashed password."""
+        if not self._password:
+            raise ValueError("Password has not been set.") 
+        return bcrypt.check_password_hash(self._password, password)
+
     def display(self):
+        """Returns user information without exposing the password"""
         return {
             "id": self.id,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "email": self.email
         }
-    
-    def hash_password(self, password):
-        """Hashes the password before storing it."""
-        if not password:
-            raise ValueError("Le mot de passe incorrect.")
-        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
-    
-    def verify_password(self, password):
-        """Verifies if the provided password matches the hashed password."""
-        if not self.password:
-            raise ValueError("Le mot de passe incorrect.") 
-        return bcrypt.check_password_hash(self.password, password)
 
     def to_dict(self):
-        """ convers en dict éviter d'inclure le mpd """
+        """Converts to dict while avoiding exposing the password"""
         return {
             "email": self.email,
             "first_name": self.first_name,
