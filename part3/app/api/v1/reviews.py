@@ -43,7 +43,7 @@ class ReviewList(Resource):
         if not (1 <= rating <= 5):
             return {'InvalidRating': 'Invalid rating. Choose between 1 and 5'}, 400
 
-        review_data['user_id'] = current_user_id  # Assigner l'utilisateur connecté
+        review_data['user_id'] = current_user_id
         try:
             review = facade.create_review(review_data)
         except (ValueError, TypeError) as error:

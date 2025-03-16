@@ -2,16 +2,16 @@ from app.models.user import User
 from app.models.review import Review
 from app.models.place import Place
 from app.models.amenity import Amenity
-from app.persistence.repository import InMemoryRepository
+from app.persistence.repository import SQLAlchemyRepository
+from app import bcrypt
 
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
-        self.place_repository = InMemoryRepository()
+        self.user_repo = SQLAlchemyRepository(User)
+        self.review_repo = SQLAlchemyRepository(Review)
+        self.amenity_repo = SQLAlchemyRepository(Amenity)
+        self.place_repository = SQLAlchemyRepository(Place)
 
-    # User methods
     def create_user(self, user_data):
         hashed_password = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
         user_data['password'] = hashed_password
@@ -19,6 +19,7 @@ class HBnBFacade:
         self.user_repo.add(user)
         return user
 
+    #User methods
     def get_user(self, user_id):
         return self.user_repo.get(user_id)
 
@@ -131,15 +132,12 @@ class HBnBFacade:
             raise ValueError(f"Error creation place: {e}")
         
     def get_place(self, place_id):
-    # Placeholder for logic to retrieve a place by ID, including associated owner and amenities
         return self.place_repository.get_all()
 
     def get_all_places(self):
-    # Placeholder for logic to retrieve all places
         return self.place_repository.get_all()
 
     def update_place(self, place_id, place_data):
-    # Placeholder for logic to update a place
         place = self.place_repository.get_by_id(place_id)
         if not place:
             raise ValueError(f"Place avec ID {place_id} pas trouvé")

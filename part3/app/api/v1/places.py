@@ -38,7 +38,7 @@ class PlaceList(Resource):
         """Register a new place"""
         place_data = api.payload
         current_user_id = get_jwt_identity()  
-        place_data['owner_id'] = current_user_id  # Assigner le propriétaire du lieu
+        place_data['owner_id'] = current_user_id
 
         try:
             place = facade.create_place(place_data)
