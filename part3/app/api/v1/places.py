@@ -1,9 +1,12 @@
+import re
+from app.services import facade
+from flask import request, jsonify
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.services import facade
 
 api = Namespace('places', description='Place operations')
 
+# Define the models for related entities
 amenity_model = api.model('PlaceAmenity', {
     'id': fields.String(description='Amenity ID'),
     'name': fields.String(description='Name of the amenity')
@@ -29,45 +32,47 @@ place_model = api.model('Place', {
 class PlaceList(Resource):
     @jwt_required()
     @api.expect(place_model)
-    @api.response(201, 'Place successfully created')
-    @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new place (Only authenticated users)"""
         place_data = api.payload
         owner_id = get_jwt_identity()
         place_data['owner_id'] = owner_id
 
+        if not isinstance(place_data.get('title'), str) or not place_data['title'].strip():
+            return {'error': 'Title must be a non-empty string'}, 400
+
+        if not isinstance(place_data.get('price'), (float, int)) or place_data['price'] <= 0:
+            return {'error': 'Price must be a positive number'}, 400
+
+        if not isinstance(place_data.get('latitude'), (float, int)) or not (-90.0 <= place_data['latitude'] <= 90.0):
+            return {'error': 'Invalid latitude value'}, 400
+
+        if not isinstance(place_data.get('longitude'), (float, int)) or not (-180.0 <= place_data['longitude'] <= 180.0):
+            return {'error': 'Invalid longitude value'}, 400
+
         try:
             place = facade.create_place(place_data)
-            return place, 201
+            return jsonify(place.to_dict()), 201
         except ValueError as e:
             return {'error': str(e)}, 400
 
-    @api.response(200, 'List of places retrieved successfully')
     def get(self):
         """Retrieve a list of all places"""
         places = facade.get_all_places()
-        return places, 200
+        return jsonify([place.to_dict() for place in places]), 200
 
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
-    @api.response(200, 'Place details retrieved successfully')
-    @api.response(404, 'Place not found')
     def get(self, place_id):
         """Get place details by ID"""
-        try:
-            place = facade.get_place_by_id(place_id)
-            return place, 200
-        except ValueError:
+        place = facade.get_place_by_id(place_id)
+        if not place:
             return {'message': 'Place not found'}, 404
+        return jsonify(place.to_dict()), 200
 
     @jwt_required()
     @api.expect(place_model)
-    @api.response(200, 'Place updated successfully')
-    @api.response(404, 'Place not found')
-    @api.response(400, 'Invalid input data')
-    @api.response(403, 'Unauthorized action')
     def put(self, place_id):
         """Update a place's information - Only the owner can modify"""
         user_id = get_jwt_identity()
@@ -77,11 +82,17 @@ class PlaceResource(Resource):
         if not place:
             return {'error': 'Place not found'}, 404
 
-        if str(place['owner_id']) != str(user_id):
+        if str(place.owner_id) != str(user_id):
             return {'error': 'Unauthorized action'}, 403
+
+        if 'title' in place_data and (not isinstance(place_data['title'], str) or not place_data['title'].strip()):
+            return {'error': 'Title must be a non-empty string'}, 400
+
+        if 'price' in place_data and (not isinstance(place_data['price'], (float, int)) or place_data['price'] <= 0):
+            return {'error': 'Price must be a positive number'}, 400
 
         try:
             updated_place = facade.update_place(place_id, place_data)
-            return updated_place, 200
+            return jsonify(updated_place.to_dict()), 200
         except ValueError as e:
             return {'error': str(e)}, 400
