@@ -47,7 +47,7 @@ class ReviewList(Resource):
         if not (1 <= rating <= 5):
             return {'error': 'Invalid rating. Choose between 1 and 5'}, 400
 
-        review_data['user_id'] = user_id  # Assign current user ID to the review
+        review_data['user_id'] = user_id
 
         try:
             review = facade.create_review(review_data)
