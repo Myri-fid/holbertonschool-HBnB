@@ -12,7 +12,6 @@ class Amenity(Baseclass):
     
     __tablename__ = 'amenities'
 
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(50), nullable=False, unique=True)
     places = relationship('Place', secondary="place_amenity", back_populates='amenities')
 
