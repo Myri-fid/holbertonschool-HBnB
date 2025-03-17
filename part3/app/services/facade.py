@@ -12,14 +12,12 @@ class HBnBFacade:
         self.amenity_repo = SQLAlchemyRepository(Amenity)
         self.place_repository = SQLAlchemyRepository(Place)
 
+    # User
     def create_user(self, user_data):
-        hashed_password = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
-        user_data['password'] = hashed_password
         user = User(**user_data)
         self.user_repo.add(user)
         return user
 
-    #User methods
     def get_user(self, user_id):
         return self.user_repo.get(user_id)
 

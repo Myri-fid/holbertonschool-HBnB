@@ -48,17 +48,9 @@ class User(Baseclass, db.Model):
             raise ValueError("Invalid email format")
         return email.lower()
 
-    @property
-    def password(self):
-        """ Prevents direct access to the password """
-        raise AttributeError("Password is not readable.")
-
-    @password.setter
-    def password(self, value):
-        """ Automatically hashes the password before storing it """
-        if not isinstance(value, str) or not value.strip():
-            raise ValueError("Password cannot be empty.")
-        self.password_hash = bcrypt.generate_password_hash(value).decode('utf-8')
+    def hash_password(self, password):
+        """Hashes the password before storing it."""
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def verify_password(self, password):
         """ Checks if the provided password matches the stored hash """
