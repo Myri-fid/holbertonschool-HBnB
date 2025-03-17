@@ -1,56 +1,52 @@
 #!/usr/bin/python3
 """
-This file provides a User class
+This file provides a User class mapped to the database.
 """
 import re
 from app import db, bcrypt
 from .base_class import Baseclass
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
+from sqlalchemy import Column, String, Boolean, Integer
 
 class User(Baseclass, db.Model):
     """
-    This class represents a user
+    This class represents a user in the system.
     """
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(50), nullable=False)
-    last_name = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(120), nullable=False, unique=True)
-    password_hash = db.Column(db.String(128), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)
+    id = Column(Integer, primary_key=True)
+    first_name = Column(String(50), nullable=False)
+    last_name = Column(String(50), nullable=False)
+    email = Column(String(120), nullable=False, unique=True)
+    password_hash = Column(String(128), nullable=False)
+    is_admin = Column(Boolean, default=False)
 
+    # Relationships
     places = relationship('Place', backref='owner', cascade="all, delete")
     # reviews = relationship('Review', backref='user', cascade="all, delete")
 
-    def __init__(self, first_name, last_name, email, password, is_admin=False):
-        """ Initializes a user with validation and transformation """
-        self.first_name = self.validate_name(first_name, "First name")
-        self.last_name = self.validate_name(last_name, "Last name")
-        self.email = self.validate_email(email)
-        self.password = password
-        self.is_admin = is_admin
-
-    @staticmethod
-    def validate_name(value, field_name):
-        """ Checks that the first name/last name is not empty and is not too long """
+    @validates('first_name', 'last_name')
+    def validate_name(self, key, value):
+        """ Ensures first and last names are valid before saving to DB """
         if not isinstance(value, str) or not value.strip():
-            raise ValueError(f"{field_name} must be a non-empty string")
+            raise ValueError(f"{key.replace('_', ' ').title()} must be a non-empty string")
         if len(value) > 50:
-            raise ValueError(f"{field_name} is too long")
+            raise ValueError(f"{key.replace('_', ' ').title()} must be 50 characters or fewer")
         return value.capitalize()
 
-    @staticmethod
-    def validate_email(email):
-        """ Checks the email format """
+    @validates('email')
+    def validate_email(self, key, email):
+        """ Ensures email format is valid before saving to DB """
         pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$"
         if not isinstance(email, str) or not re.match(pattern, email):
             raise ValueError("Invalid email format")
         return email.lower()
 
-    def hash_password(self, password):
-        """Hashes the password before storing it."""
-        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+    def set_password(self, password):
+        """Hashes and stores the password securely."""
+        if not isinstance(password, str) or len(password) < 6:
+            raise ValueError("Password must be at least 6 characters long")
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def verify_password(self, password):
         """ Checks if the provided password matches the stored hash """
