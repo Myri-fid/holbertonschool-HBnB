@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship, validates
 from app.models.base_class import Baseclass
 from app import db
 
-class Review(Baseclass, db.Model):
+class Review(Baseclass):
     """
     Review class representing feedback left on a place.
     """
