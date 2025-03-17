@@ -1,10 +1,9 @@
 import uuid
 from app.models.base_class import Baseclass
-from app import db
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy import Column, String, Float, Integer, ForeignKey
 
-class Place(Baseclass, db.Model):
+class Place(Baseclass):
     """
     Place class representing a location available for rent.
     """
