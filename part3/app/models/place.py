@@ -9,7 +9,6 @@ class Place(Baseclass):
     """
     __tablename__ = 'places'
 
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     title = Column(String(100), nullable=False)
     description = Column(String(500), nullable=True)
     price = Column(Float, nullable=False)
