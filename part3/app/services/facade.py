@@ -12,7 +12,7 @@ class HBnBFacade:
         self.amenity_repo = AmenityRepository()
         self.place_repository = PlaceRepository()
 
-    # USER METHODS
+    # User methods
     def create_user(self, user_data):
         user = User(**user_data)
         user.hash_password(user_data['password'])
@@ -43,7 +43,8 @@ class HBnBFacade:
     # Place Methods
     def create_place(self, place_data):
         place = Place(**place_data)
-        return self.place_repo.add(place)
+        self.place_repo.add(place)
+        return place
 
     def get_place(self, place_id):
         return self.place_repo.get(place_id)
