@@ -1,57 +1,66 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 from app.models.base_class import Baseclass
-from app.models.place import Place
-from app.models.user import User
-from app import db, bcrypt
-from flask_sqlalchemy import SQLAlchemy
+from app import db
 
-
-class Review(Baseclass):
-
+class Review(Baseclass, db.Model):
+    """
+    Review class representing feedback left on a place.
+    """
     __tablename__ = 'reviews'
 
-    id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(50), nullable=False)
-    rating = db.Column(db.Integer, nullable=False)
-    place_id = db.Column(db.Integer, ForeignKey('places.id'), nullable=False)
-    user_id = db.Column(db.Integer, ForeignKey('users.id'), nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    text = Column(String(500), nullable=False)
+    rating = Column(Integer, nullable=False)
+    place_id = Column(Integer, ForeignKey('places.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
-    place = relationship('Place', backref='reviews')
-    user = relationship('User', backref='reviews')
+    # Relationships
+    place = relationship('Place', back_populates='reviews')
+    user = relationship('User', back_populates='reviews')
 
-    def __init__(self, text, rating, place_id, user_id):
-        super().__init__()
-        self.text = text
-        self.rating = rating
-        self.place_id = place_id
-        self.user_id = user_id
-        self.validate()
+    @validates('text')
+    def validate_text(self, key, value):
+        """Ensures review text is not empty and within limits."""
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("Review text must be a non-empty string")
+        if len(value) > 500:
+            raise ValueError("Review text must be 500 characters or fewer")
+        return value
 
-    def validate(self):
-        if not self.text:
-            raise ValueError('Error: Text is empty.')
-        if not (1 <= self.rating <= 5):
-            raise ValueError('Error: Choose between 1 and 5')
-        if Place.query.get(self.place_id) is None:
-            raise ValueError('Error: Place does not exist')
-        if User.query.get(self.user_id) is None:
-            raise ValueError('Error: User does not exist')
+    @validates('rating')
+    def validate_rating(self, key, value):
+        """Ensures rating is between 1 and 5."""
+        if not isinstance(value, int) or not (1 <= value <= 5):
+            raise ValueError("Rating must be an integer between 1 and 5")
+        return value
 
-    def update(self, text=None, rating=None, place_id=None, user_id=None):
-        if text is not None:
-            self.text = text
-        if rating is not None:
-            self.rating = rating
-        if place_id is not None:
-            self.place_id = place_id
-        if user_id is not None:
-            self.user_id = user_id
-        self.updated_at = Baseclass.datetime.now()
-        self.validate()
+    @validates('place_id')
+    def validate_place_id(self, key, value):
+        """Ensures place_id is a valid integer."""
+        if not isinstance(value, int) or value <= 0:
+            raise ValueError("Invalid place ID")
+        return value
+
+    @validates('user_id')
+    def validate_user_id(self, key, value):
+        """Ensures user_id is a valid integer."""
+        if not isinstance(value, int) or value <= 0:
+            raise ValueError("Invalid user ID")
+        return value
+
+    def to_dict(self):
+        """Converts the Review object to a dictionary (excluding relationships)."""
+        return {
+            "id": self.id,
+            "text": self.text,
+            "rating": self.rating,
+            "place_id": self.place_id,
+            "user_id": self.user_id
+        }
 
     def __str__(self):
         return (
             f'Review: (id={self.id}, text={self.text}, rating={self.rating}, '
-            f'place={self.place}, user={self.user})'
+            f'place_id={self.place_id}, user_id={self.user_id})'
         )
