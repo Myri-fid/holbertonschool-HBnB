@@ -2,28 +2,39 @@
 """This module defines the Amenity class."""
 
 import uuid
-from datetime import datetime
+from sqlalchemy import Column, String
+from sqlalchemy.orm import validates
 from app.models.base_class import Baseclass
 from app import db
 
-class Amenity(Baseclass, db.Model):
+class Amenity(Baseclass):
     """Defines attributes and methods for the Amenity class."""
     
     __tablename__ = 'amenities'
 
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = db.Column(db.String(50), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String(50), nullable=False, unique=True)
 
-    def __init__(self, name):
-        if not isinstance(name, str) or not name.strip():
-            raise ValueError("The name of the amenity is required and must be a string")
-        if len(name) > 50:
-            raise ValueError("The name of the amenity cannot exceed 50 characters")
-
-        self.name = name
-        self.created_at = datetime.utcnow()
-        self.updated_at = self.created_at
+    @validates('name')
+    def validate_name(self, key, value):
+        """Ensures the name is valid before saving to the database."""
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("Amenity name is required and must be a non-empty string")
+        if len(value) > 50:
+            raise ValueError("Amenity name cannot exceed 50 characters")
+        return value.capitalize()
 
     def update_timestamp(self):
-        self.updated_at = datetime.utcnow()
+        """Updates the `updated_at` timestamp before committing changes."""
+        self.updated_at = db.func.current_timestamp()
         db.session.commit()
+
+    def to_dict(self):
+        """Returns a dictionary representation of the Amenity object."""
+        return {
+            "id": self.id,
+            "name": self.name
+        }
+
+    def __str__(self):
+        return f"Amenity: {self.name} (ID: {self.id})"
