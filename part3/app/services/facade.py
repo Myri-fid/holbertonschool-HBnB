@@ -40,135 +40,38 @@ class HBnBFacade:
         self.user_repo.delete(user)
         return user
 
-    # REVIEW METHODS
+    # Place Methods
+    def create_place(self, place_data):
+        place = Place(**place_data)
+        return self.place_repo.add(place)
+
+    def get_place(self, place_id):
+        return self.place_repo.get(place_id)
+
+    def update_place(self, place_id, place_data):
+        return self.place_repo.update(place_id, place_data)
+
+    def delete_place(self, place_id):
+        return self.place_repo.delete(place_id)
+
+    # Review Methods
     def create_review(self, review_data):
-        user_id = review_data.get('user_id')
-        place_id = review_data.get('place_id')
-        rating = review_data.get('rating')
-
-        if not self.get_user(user_id):
-            raise ValueError(f"User with ID {user_id} not found")
-        if not self.get_place(place_id):
-            raise ValueError(f"Place with ID {place_id} not found")
-        if not (1 <= rating <= 5):
-            raise ValueError("Rating must be between 1 and 5")
-
         review = Review(**review_data)
-        self.review_repo.add(review)
-        return review
+        return self.review_repo.add(review)
 
     def get_review(self, review_id):
         return self.review_repo.get(review_id)
 
-    def get_all_reviews(self):
-        return self.review_repo.get_all()
-
-    def get_reviews_by_place(self, place_id):
-        reviews = self.review_repo.get_all()
-        return [review for review in reviews if review.place_id == place_id]
-
-    def update_review(self, review_id, data):
-        review = self.review_repo.get(review_id)
-        if not review:
-            raise ValueError(f"Review with ID {review_id} not found")
-        user_id = data.get('user_id')
-        place_id = data.get('place_id')
-        rating = data.get('rating')
-        if not self.get_user(user_id):
-            raise ValueError(f"User with ID {user_id} not found")
-        if not self.get_place(place_id):
-            raise ValueError(f"Place with ID {place_id} not found")
-        if not (1 <= rating <= 5):
-            raise ValueError("Rating must be between 1 and 5")
-
-        review.update(data)
-        return review
-
     def delete_review(self, review_id):
-        review = self.review_repo.get(review_id)
-        if not review:
-            raise ValueError(f"Review with ID {review_id} not found")
-        self.review_repo.delete(review)
-        return review
+        return self.review_repo.delete(review_id)
 
-    # AMENITY METHODS
+    # Amenity Methods
     def create_amenity(self, amenity_data):
         amenity = Amenity(**amenity_data)
-        self.amenity_repo.add(amenity)
-        return amenity
+        return self.amenity_repo.add(amenity)
 
     def get_amenity(self, amenity_id):
         return self.amenity_repo.get(amenity_id)
 
-    def get_all_amenities(self):
-        return self.amenity_repo.get_all()
-
-    def update_amenity(self, amenity_id, amenity_data):
-        self.amenity_repo.update(amenity_id, amenity_data)
-        return self.amenity_repo.get(amenity_id)
-
     def delete_amenity(self, amenity_id):
-        amenity = self.amenity_repo.get(amenity_id)
-        if not amenity:
-            raise ValueError(f"Amenity with ID {amenity_id} not found")
-        self.amenity_repo.delete(amenity)
-        return amenity
-
-    # PLACE METHODS
-    def create_place(self, place_data):
-        owner_id = place_data.get('owner_id')
-        if not owner_id:
-            raise ValueError("Owner ID is required")
-        owner = self.get_user(owner_id)
-        if not owner:
-            raise ValueError(f"User with ID {owner_id} not found")
-
-        try:
-            place = Place(
-                title=place_data['title'],
-                description=place_data.get('description', ''),
-                price=place_data['price'],
-                latitude=place_data['latitude'],
-                longitude=place_data['longitude'],
-                owner_id=owner_id,  # Correct field mapping
-                amenities=place_data.get('amenities', [])
-            )
-            self.place_repository.add(place)
-            return place
-        except Exception as e:
-            raise ValueError(f"Error creating place: {e}")
-
-    def get_place(self, place_id):
-        """Retrieve a single place"""
-        place = self.place_repository.get(place_id)
-        if not place:
-            raise ValueError(f"Place with ID {place_id} not found")
-        return place
-
-    def get_all_places(self):
-        """Retrieve all places"""
-        return self.place_repository.get_all()
-
-    def get_place_by_id(self, place_id):
-        """Retrieve a place by ID"""
-        place = self.place_repository.get(place_id)
-        if not place:
-            raise ValueError(f"Place with ID {place_id} not found")
-        return place
-
-    def update_place(self, place_id, place_data):
-        """Update a place"""
-        place = self.place_repository.get(place_id)
-        if not place:
-            raise ValueError(f"Place with ID {place_id} not found")
-
-        self.place_repository.update(place_id, place_data)
-        return self.place_repository.get(place_id)
-
-    def delete_place(self, place_id):
-        """Delete a place"""
-        place = self.place_repository.get(place_id)
-        if not place:
-            raise ValueError(f"Place with ID {place_id} not found")
-        self.place_repository.delete(place)
-        return place
+        return self.amenity_repo.delete(amenity_id)
