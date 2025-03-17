@@ -13,7 +13,6 @@ class Amenity(Baseclass):
     __tablename__ = 'amenities'
 
     name = Column(String(50), nullable=False, unique=True)
-    places = relationship('Place', secondary="place_amenity", back_populates='amenities')
 
     @validates('name')
     def validate_name(self, key, value):
