@@ -1,8 +1,8 @@
 import uuid
-from datetime import datetime
 from app.models.base_class import Baseclass
 from app import db
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
+from sqlalchemy import Column, String, Float, Integer, ForeignKey
 
 class Place(Baseclass, db.Model):
     """
@@ -10,38 +10,69 @@ class Place(Baseclass, db.Model):
     """
     __tablename__ = 'places'
 
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    title = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.String(200))
-    price = db.Column(db.Float, nullable=False)
-    latitude = db.Column(db.Float, nullable=False)
-    longitude = db.Column(db.Float, nullable=False)
-    owner_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
-    rating = db.Column(db.Integer, default=0)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    title = Column(String(100), nullable=False)
+    description = Column(String(500), nullable=True)
+    price = Column(Float, nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    owner_id = Column(String(36), ForeignKey('users.id'), nullable=False)
+    rating = Column(Integer, default=0)
 
+    # Relationships
     owner = relationship('User', back_populates='places')
     reviews = relationship('Review', back_populates='place', cascade="all, delete-orphan")
     amenities = relationship('Amenity', secondary="place_amenities", back_populates='places')
 
-    def __init__(self, title, price, latitude, longitude, owner_id, description=""):
-        super().__init__()
-        self.title = title
-        self.description = description
-        self.price = price
-        self.latitude = latitude
-        self.longitude = longitude
-        self.owner_id = owner_id
-        self.validate()
+    @validates('title')
+    def validate_title(self, key, value):
+        """Ensures title is a valid string and within limits."""
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("Title must be a non-empty string")
+        if len(value) > 100:
+            raise ValueError("Title must be 100 characters or fewer")
+        return value
 
-    def validate(self):
-        if not isinstance(self.title, str) or len(self.title) > 100:
-            raise ValueError("Title is too long or not a string")
-        if not isinstance(self.price, (float, int)) or self.price <= 0:
+    @validates('price')
+    def validate_price(self, key, value):
+        """Ensures price is a positive number."""
+        if not isinstance(value, (float, int)) or value <= 0:
             raise ValueError("Price must be a positive number")
-        if not isinstance(self.latitude, (float, int)) or not (-90.0 <= self.latitude <= 90.0):
-            raise ValueError("Invalid latitude value")
-        if not isinstance(self.longitude, (float, int)) or not (-180.0 <= self.longitude <= 180.0):
-            raise ValueError("Invalid longitude value")
+        return float(value)
+
+    @validates('latitude')
+    def validate_latitude(self, key, value):
+        """Ensures latitude is within valid range."""
+        if not isinstance(value, (float, int)) or not (-90.0 <= value <= 90.0):
+            raise ValueError("Latitude must be between -90 and 90")
+        return float(value)
+
+    @validates('longitude')
+    def validate_longitude(self, key, value):
+        """Ensures longitude is within valid range."""
+        if not isinstance(value, (float, int)) or not (-180.0 <= value <= 180.0):
+            raise ValueError("Longitude must be between -180 and 180")
+        return float(value)
+
+    @validates('rating')
+    def validate_rating(self, key, value):
+        """Ensures rating is between 1 and 5 if set."""
+        if value is not None and (not isinstance(value, int) or not (1 <= value <= 5)):
+            raise ValueError("Rating must be an integer between 1 and 5")
+        return value
+
+    def to_dict(self):
+        """Converts the Place object to a dictionary (excluding sensitive data)."""
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "price": self.price,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "owner_id": self.owner_id,
+            "rating": self.rating
+        }
 
     def __str__(self):
         return f"Place: {self.title} (Owner ID: {self.owner_id})"
