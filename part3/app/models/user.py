@@ -3,12 +3,12 @@
 This file provides a User class mapped to the database.
 """
 import re
-from app import db, bcrypt
+from app import bcrypt
 from .base_class import Baseclass
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy import Column, String, Boolean, Integer
 
-class User(Baseclass, db.Model):
+class User(Baseclass):
     """
     This class represents a user in the system.
     """
