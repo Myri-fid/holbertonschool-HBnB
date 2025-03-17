@@ -21,7 +21,7 @@ class Place(Baseclass):
     # Relationships
     owner = relationship('User', back_populates='places')
     reviews = relationship('Review', back_populates='place', cascade="all, delete-orphan")
-    amenities = relationship('Amenity', secondary="place_amenities", back_populates='places')
+    amenities = relationship('Amenity', secondary="place_amenity", back_populates='places')
 
     @validates('title')
     def validate_title(self, key, value):
