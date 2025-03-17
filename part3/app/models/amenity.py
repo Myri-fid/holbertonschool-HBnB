@@ -3,7 +3,7 @@
 
 import uuid
 from sqlalchemy import Column, String
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import validates, relationship
 from app.models.base_class import Baseclass
 from app import db
 
@@ -14,6 +14,7 @@ class Amenity(Baseclass):
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(50), nullable=False, unique=True)
+    places = relationship('Place', secondary="place_amenities", back_populates='amenities')
 
     @validates('name')
     def validate_name(self, key, value):
