@@ -21,7 +21,7 @@ class User(Baseclass, db.Model):
     is_admin = db.Column(db.Boolean, default=False)
 
     places = relationship('Place', backref='owner', cascade="all, delete")
-    reviews = relationship('Review', backref='user', cascade="all, delete")
+    # reviews = relationship('Review', backref='user', cascade="all, delete")
 
     def __init__(self, first_name, last_name, email, password, is_admin=False):
         """ Initializes a user with validation and transformation """
