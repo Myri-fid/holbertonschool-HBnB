@@ -1,7 +1,8 @@
-from flask_restx import Namespace, Resource, fields
-from app.services import facade
-from app import bcrypt
 import re
+from app import bcrypt
+from app.services import facade
+from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('users', description='User operations')
 
@@ -64,6 +65,7 @@ class UserList(Resource):
 
 @api.route('/<user_id>')
 class UserResource(Resource):
+    @jwt_required()
     @api.response(200, 'User details retrieved successfully')
     @api.response(404, 'User not found')
     def get(self, user_id):
@@ -79,6 +81,7 @@ class UserResource(Resource):
             'email': user.email
         }, 200
 
+    @jwt_required()
     @api.expect(user_model)
     @api.response(200, 'User successfully updated')
     @api.response(404, 'User not found')
@@ -87,40 +90,39 @@ class UserResource(Resource):
     def put(self, user_id):
         """Update user"""
         user_data = api.payload
-        user = facade.get_user(user_id)
+        current_user_id = get_jwt_identity()
 
+        user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
+        
+        if str(user.id) != str(current_user_id):
+            return {'error': 'Unauthorized action'}, 403
 
-        if "email" in user_data:
-            existing_user = facade.get_user_by_email(user_data['email'])
-            if existing_user and existing_user.id != user.id:
-                api.abort(400, "Email already registered by another user")
-
-        if "password" in user_data:
-            if len(user_data['password']) < 6:
-                api.abort(400, "Password must be at least 6 characters long")
-            user_data['password'] = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
+        if 'email' in user_data or 'password' in user_data:
+            return {'error': 'You cannot modify email or password'}, 400
 
         try:
-            updated_user = facade.update_user(user_id, user_data)
+            user.update(user_data)
+            updated_user = facade.update_user(user_id, user.display())
         except (ValueError, TypeError) as e:
             api.abort(400, f"Error: {str(e)}")
 
-        return {
-            "id": updated_user.id,
-            "first_name": updated_user.first_name,
-            "last_name": updated_user.last_name,
-            "email": updated_user.email
-        }, 200
+        return updated_user.display(), 200
 
+    @jwt_required()
     @api.response(204, 'User successfully deleted')
     @api.response(404, 'User not found')
     def delete(self, user_id):
         """Delete user"""
+        current_user_id = get_jwt_identity()
+
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
+
+        if str(user.id) != str(current_user_id):
+            return {'error': 'Unauthorized action'}, 403
 
         facade.delete_user(user_id)
         return '', 204
