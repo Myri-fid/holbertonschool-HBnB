@@ -22,8 +22,8 @@ class User(Baseclass):
     is_admin = Column(Boolean, default=False)
 
     # Relationships
-    places = relationship('Place', backref='owner', cascade="all, delete")
-    # reviews = relationship('Review', backref='user', cascade="all, delete")
+    places = relationship('Place', back_populates='owner', cascade="all, delete")
+    reviews = relationship('Review', back_populates='user', cascade="all, delete")
 
     @validates('first_name', 'last_name')
     def validate_name(self, key, value):
