@@ -1,10 +1,10 @@
-from app import bcrypt
 from flask import request
 from app.services import facade
 from flask_restx import Namespace, Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 api = Namespace('admin', description='Admin operations')
+
 
 @api.route('/users/')
 class AdminUserCreate(Resource):
@@ -37,6 +37,7 @@ class AdminUserCreate(Resource):
         except TypeError as e:
             return {'error': str(e)}, 400
 
+
 @api.route('/users/<user_id>')
 class AdminUserModify(Resource):
     @api.response(200, 'User successfully updated')
@@ -68,6 +69,7 @@ class AdminUserModify(Resource):
         except TypeError as e:
             return {'error': str(e)}, 400
 
+
 @api.route('/amenities/')
 class AdminAmenityCreate(Resource):
     @api.response(201, 'Amenity successfully created')
@@ -95,6 +97,7 @@ class AdminAmenityCreate(Resource):
             return {'error': str(e)}, 400
         except TypeError as e:
             return {'error': str(e)}, 400
+
 
 @api.route('/amenities/<amenity_id>')
 class AdminAmenityModify(Resource):
