@@ -24,37 +24,34 @@ class UserList(Resource):
         """Register a new user"""
         user_data = api.payload
 
-        # Validate input fields
-        if not isinstance(user_data['first_name'], str) or not user_data['first_name'].strip():
+        # Validate first and last name
+        if not user_data['first_name'].strip():
             api.abort(400, "First name must be a non-empty string")
 
-        if not isinstance(user_data['last_name'], str) or not user_data['last_name'].strip():
+        if not user_data['last_name'].strip():
             api.abort(400, "Last name must be a non-empty string")
 
-        email_pattern = r"^[a-zA-Z0-9_.-]+@[a-zA-Z-_]+\.[a-zA-Z]{2,}$"
-        if not isinstance(user_data['email'], str) or not re.match(email_pattern, user_data['email']):
+        # Validate email
+        email_pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?$"
+        if not re.match(email_pattern, user_data['email']):
             api.abort(400, "Invalid email format")
 
         if facade.get_user_by_email(user_data['email']):
             api.abort(400, "Email already registered")
 
-        # Validate and hash password
-        if 'password' not in user_data or not isinstance(user_data['password'], str) or len(user_data['password']) < 6:
-            api.abort(400, "Password must be at least 6 characters long")
+        # Validate password
+        password = user_data['password']
+        if len(password) < 6 or not re.search(r"\d", password) or not re.search(r"[A-Z]", password):
+            api.abort(400, "Password must be at least 6 characters long, contain a digit and an uppercase letter")
 
-        user_data['password'] = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
+        user_data['password'] = bcrypt.generate_password_hash(password).decode('utf-8')
 
         try:
             new_user = facade.create_user(user_data)
         except (ValueError, TypeError) as e:
             api.abort(400, str(e))
 
-        return {
-            "id": new_user.id,
-            "first_name": new_user.first_name,
-            "last_name": new_user.last_name,
-            "email": new_user.email
-        }, 201
+        return new_user.to_dict(), 201
 
     @api.response(200, "Successfully retrieved user list")
     def get(self):
@@ -90,13 +87,13 @@ class UserResource(Resource):
     def put(self, user_id):
         """Update user"""
         user_data = api.payload
-        current_user_id = get_jwt_identity()
+        current_user = facade.get_user(get_jwt_identity())
 
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
         
-        if str(user.id) != str(current_user_id):
+        if not current_user.is_admin and str(user.id) != str(current_user.id):
             return {'error': 'Unauthorized action'}, 403
 
         if 'email' in user_data or 'password' in user_data:
@@ -115,13 +112,13 @@ class UserResource(Resource):
     @api.response(404, 'User not found')
     def delete(self, user_id):
         """Delete user"""
-        current_user_id = get_jwt_identity()
+        current_user = facade.get_user(get_jwt_identity())
 
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
 
-        if str(user.id) != str(current_user_id):
+        if not current_user.is_admin and str(user.id) != str(current_user.id):
             return {'error': 'Unauthorized action'}, 403
 
         facade.delete_user(user_id)
