@@ -14,7 +14,7 @@ class Amenity(Baseclass):
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(50), nullable=False, unique=True)
-    places = relationship('Place', secondary="place_amenities", back_populates='amenities')
+    places = relationship('Place', secondary="place_amenity", back_populates='amenities')
 
     @validates('name')
     def validate_name(self, key, value):
