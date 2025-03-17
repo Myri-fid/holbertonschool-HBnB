@@ -9,7 +9,6 @@ class Review(Baseclass):
     """
     __tablename__ = 'reviews'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
     text = Column(String(500), nullable=False)
     rating = Column(Integer, nullable=False)
     place_id = Column(Integer, ForeignKey('places.id'), nullable=False)
