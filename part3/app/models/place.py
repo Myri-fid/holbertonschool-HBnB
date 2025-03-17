@@ -1,6 +1,8 @@
 import uuid
+from app import db
 from app.models.base_class import Baseclass
 from sqlalchemy.orm import relationship, validates
+from app.models.place_amenity import place_amenity
 from sqlalchemy import Column, String, Float, Integer, ForeignKey
 
 class Place(Baseclass):
@@ -20,7 +22,9 @@ class Place(Baseclass):
     # Relationships
     owner = relationship('User', back_populates='places')
     reviews = relationship('Review', back_populates='place', cascade="all, delete-orphan")
-    amenities = relationship('Amenity', secondary="place_amenity", back_populates='places')
+    amenities = db.relationship('Amenity', secondary=place_amenity,
+                            lazy='subquery',
+                            backref=db.backref('places', lazy=True))
 
     @validates('title')
     def validate_title(self, key, value):
