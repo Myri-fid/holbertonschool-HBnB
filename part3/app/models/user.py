@@ -41,7 +41,7 @@ class User(Baseclass):
             raise ValueError("Invalid email format")
         return email.lower()
 
-    def set_password(self, password):
+    def hash_password(self, password):
         """Hashes and stores the password securely."""
         if not isinstance(password, str) or len(password) < 6:
             raise ValueError("Password must be at least 6 characters long")
