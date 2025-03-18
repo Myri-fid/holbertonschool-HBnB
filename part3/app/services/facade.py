@@ -27,8 +27,8 @@ class HBnBFacade:
         return self.user_repo.get_user_by_email(email)
 
     def get_all_users(self):
-        list_users = self.user_repo.get_all()
-        return [user.display() for user in list_users]
+        return self.user_repo.get_all()
+
 
     def update_user(self, user_id, user_data):
         self.user_repo.update(user_id, user_data)
