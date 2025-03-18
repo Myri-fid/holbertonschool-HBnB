@@ -56,6 +56,7 @@ class UserList(Resource):
 
 @api.route('/<user_id>')
 class UserResource(Resource):
+    @api.doc(security='token')
     @jwt_required()
     @api.response(200, 'User details retrieved successfully')
     @api.response(404, 'User not found')
@@ -72,6 +73,7 @@ class UserResource(Resource):
             'email': user.email
         }, 200
 
+    @api.doc(security='token')
     @jwt_required()
     @api.expect(user_model)
     @api.response(200, 'User successfully updated')
@@ -101,6 +103,7 @@ class UserResource(Resource):
 
         return updated_user.display(), 200
 
+    @api.doc(security='token')
     @jwt_required()
     @api.response(204, 'User successfully deleted')
     @api.response(404, 'User not found')
