@@ -7,9 +7,10 @@ from sqlalchemy.orm import validates, relationship
 from app.models.base_class import Baseclass
 from app import db
 
+
 class Amenity(Baseclass):
     """Defines attributes and methods for the Amenity class."""
-    
+
     __tablename__ = 'amenities'
 
     name = Column(String(50), nullable=False, unique=True)
@@ -18,7 +19,9 @@ class Amenity(Baseclass):
     def validate_name(self, key, value):
         """Ensures the name is valid before saving to the database."""
         if not isinstance(value, str) or not value.strip():
-            raise ValueError("Amenity name is required and must be a non-empty string")
+            raise ValueError(
+                "Amenity name is required and must be a non-empty string"
+                )
         if len(value) > 50:
             raise ValueError("Amenity name cannot exceed 50 characters")
         return value.capitalize()
