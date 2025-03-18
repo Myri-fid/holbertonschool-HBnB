@@ -1,24 +1,38 @@
-from flask import request
 from app.services import facade
-from flask_restx import Namespace, Resource
+from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 api = Namespace('admin', description='Admin operations')
 
+user_model = api.model(
+    'User', {
+        'first_name': fields.String(
+            required=True, description='First name of the user'),
+        'last_name': fields.String(
+            required=True, description='Last name of the user'),
+        'password': fields.String(
+            required=True, description='User\'s password'),
+        'email': fields.String(
+            required=True, description='Email of the user'),
+        'is_admin': fields.Boolean(description='Admin flag',
+                                   exemple=True)
+    }
+)
 
 @api.route('/users/')
 class AdminUserCreate(Resource):
+    @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
     @api.response(400, 'Email already registered')
     @api.response(400, 'Invalid input data')
     @jwt_required()
     def post(self):
         """Create a new user (Admin only)"""
+        user_data = api.payload
         current_user = get_jwt_identity()
         if not current_user.get('is_admin'):
             return {'error': 'Admin privileges required'}, 403
 
-        user_data = request.json
         email = user_data.get('email')
 
         # Check if email is already in use
@@ -40,17 +54,18 @@ class AdminUserCreate(Resource):
 
 @api.route('/users/<user_id>')
 class AdminUserModify(Resource):
+    @api.expect(user_model, validate=True)
     @api.response(200, 'User successfully updated')
     @api.response(404, 'User not found')
     @api.response(400, 'Invalid input data')
     @jwt_required()
     def put(self, user_id):
+        user_data = api.payload
         current_user = get_jwt_identity()
         if not current_user.get('is_admin'):
             return {'error': 'Admin privileges required'}, 403
 
-        data = request.json
-        email = data.get('email')
+        email = user_data.get('email')
 
         # Ensure email uniqueness
         if email:
@@ -59,7 +74,7 @@ class AdminUserModify(Resource):
                 return {'error': 'Email already in use'}, 400
 
         try:
-            updated_user = facade.update_user(user_id, data)
+            updated_user = facade.update_user(user_id, user_data)
             return {
                 'id': updated_user.id,
                 'message': 'User successfully updated'
@@ -76,11 +91,12 @@ class AdminAmenityCreate(Resource):
     @api.response(400, 'Invalid input data')
     @jwt_required()
     def post(self):
+        amenity_data = api.payload
         current_user = get_jwt_identity()
         if not current_user.get('is_admin'):
             return {'error': 'Admin privileges required'}, 403
 
-        amenity_data = request.json
+        # amenity_data = request.json
         name = amenity_data.get('name')
 
         # Check if amenity name is already in use
@@ -106,6 +122,7 @@ class AdminAmenityModify(Resource):
     @api.response(400, 'Invalid input data')
     @jwt_required()
     def put(self, amenity_id):
+        amenity_data = api.payload
         current_user = get_jwt_identity()
         if not current_user.get('is_admin'):
             return {'error': 'Admin privileges required'}, 403
