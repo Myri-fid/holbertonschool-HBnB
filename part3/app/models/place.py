@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship, validates
 from app.models.place_amenity import place_amenity
 from sqlalchemy import Column, String, Float, Integer, ForeignKey
 
+
 class Place(Baseclass):
     """
     Place class representing a location available for rent.
@@ -21,10 +22,12 @@ class Place(Baseclass):
 
     # Relationships
     owner = relationship('User', back_populates='places')
-    reviews = relationship('Review', back_populates='place', cascade="all, delete-orphan")
+    reviews = relationship('Review',
+                           back_populates='place',
+                           cascade="all, delete-orphan")
     amenities = db.relationship('Amenity', secondary=place_amenity,
-                            lazy='subquery',
-                            backref=db.backref('places', lazy=True))
+                                lazy='subquery',
+                                backref=db.backref('places', lazy=True))
 
     @validates('title')
     def validate_title(self, key, value):
@@ -52,19 +55,21 @@ class Place(Baseclass):
     @validates('longitude')
     def validate_longitude(self, key, value):
         """Ensures longitude is within valid range."""
-        if not isinstance(value, (float, int)) or not (-180.0 <= value <= 180.0):
+        if not isinstance(value,
+                          (float, int)) or not (-180.0 <= value <= 180.0):
             raise ValueError("Longitude must be between -180 and 180")
         return float(value)
 
     @validates('rating')
     def validate_rating(self, key, value):
         """Ensures rating is between 1 and 5 if set."""
-        if value is not None and (not isinstance(value, int) or not (1 <= value <= 5)):
+        if value is not None and \
+        (not isinstance(value, int) or not (1 <= value <= 5)):
             raise ValueError("Rating must be an integer between 1 and 5")
         return value
 
     def to_dict(self):
-        """Converts the Place object to a dictionary (excluding sensitive data)."""
+        """Converts the Place object to a dictionary."""
         return {
             "id": self.id,
             "title": self.title,
