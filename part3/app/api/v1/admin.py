@@ -25,6 +25,7 @@ class AdminUserCreate(Resource):
     @api.response(201, 'User successfully created')
     @api.response(400, 'Email already registered')
     @api.response(400, 'Invalid input data')
+    @api.doc(security='token')
     @jwt_required()
     def post(self):
         """Create a new user (Admin only)"""
@@ -58,6 +59,7 @@ class AdminUserModify(Resource):
     @api.response(200, 'User successfully updated')
     @api.response(404, 'User not found')
     @api.response(400, 'Invalid input data')
+    @api.doc(security='token')
     @jwt_required()
     def put(self, user_id):
         user_data = api.payload
@@ -89,6 +91,7 @@ class AdminUserModify(Resource):
 class AdminAmenityCreate(Resource):
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
+    @api.doc(security='token')
     @jwt_required()
     def post(self):
         amenity_data = api.payload
@@ -120,6 +123,7 @@ class AdminAmenityModify(Resource):
     @api.response(200, 'Amenity updated successfully')
     @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
+    @api.doc(security='token')
     @jwt_required()
     def put(self, amenity_id):
         amenity_data = api.payload
