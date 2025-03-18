@@ -39,12 +39,6 @@ class UserList(Resource):
         if facade.get_user_by_email(user_data['email']):
             api.abort(400, "Email already registered")
 
-        # Validate password
-        password = user_data['password']
-        if len(password) < 6 or not re.search(r"\d", password) or not re.search(r"[A-Z]", password):
-            api.abort(400, "Password must be at least 6 characters long, contain a digit and an uppercase letter")
-
-        user_data['password'] = bcrypt.generate_password_hash(password).decode('utf-8')
 
         try:
             new_user = facade.create_user(user_data)
