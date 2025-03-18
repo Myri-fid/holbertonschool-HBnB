@@ -51,7 +51,7 @@ class User(Baseclass):
         """ Checks if the provided password matches the stored hash """
         return bcrypt.check_password_hash(self.password_hash, password)
 
-    def to_dict(self):
+    def display(self):
         """ Converts the object to a dictionary (excluding the password) """
         return {
             "id": self.id,
