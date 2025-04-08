@@ -30,3 +30,17 @@ nav a {
 main {
     padding: 2rem;
 }
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #fbfafa;
+    color: rgb(222, 151, 35);
+}
+.place-card,
+.review-card {
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
