@@ -42,10 +42,16 @@ footer {
     color: rgb(222, 151, 35);
 }
 .place-card,
+
 .review-card {
     margin: 20px;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 10px;
+}
+
+.login-button {
+    background-color: var(--secondary-color);
+    color: white;
 }
 
