@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loginUser(email, password) {
-  const response = await fetch('https://your-api-url/login', {
+  const response = await fetch('                                    ', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
@@ -52,6 +52,14 @@ function getCookie(name) {
 
 async function fetchPlaces(token) {
   // Make a GET request to fetch places data
+  const response = await fetch('https://your-api-url/login', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email, password })
+});
+
   // Include the token in the Authorization header
   // Handle the response and pass the data to displayPlaces function
 }
