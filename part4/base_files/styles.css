@@ -21,7 +21,7 @@ body {
 }
 
 header {
-    background-color: #d98c3a;
+    background-color: orange;
     color: #fff;
     padding: 1rem;
 }
@@ -39,7 +39,7 @@ footer {
     text-align: center;
     padding: 10px;
     background-color: #fbfafa;
-    color: rgb(222, 151, 35);
+    color: orange;
 }
 .place-card,
 
@@ -63,4 +63,13 @@ footer {
     border-radius: 10px;
     background-color: white;
     text-align: center;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: orange;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
