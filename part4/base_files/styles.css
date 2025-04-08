@@ -41,7 +41,16 @@ footer {
     background-color: #fbfafa;
     color: orange;
 }
-.place-card,
+.place-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 20px auto;
+    text-align: center;
+    padding-bottom: 10px;
+}
 
 .review-card {
     margin: 20px;
@@ -72,4 +81,11 @@ button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.place-image {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
 }
