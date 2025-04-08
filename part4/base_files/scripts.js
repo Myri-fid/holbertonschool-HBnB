@@ -24,12 +24,11 @@ async function loginUser(email, password) {
       body: JSON.stringify({ email, password })
   });
   // Handle the response
-}
-
-if (response.ok) {
-  const data = await response.json();
-  document.cookie = `token=${data.access_token}; path=/`;
-  window.location.href = 'index.html';
-} else {
-  alert('Login failed: ' + response.statusText);
+  if (response.ok) {
+    const data = await response.json();
+    document.cookie = `token=${data.access_token}; path=/`;
+    window.location.href = 'index.html';
+  } else {
+    alert('Login failed: ' + response.statusText);
+  }
 }
