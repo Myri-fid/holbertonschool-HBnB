@@ -112,6 +112,7 @@ function checkAuthentication() {
   } else {
       addReviewSection.style.display = 'block';
       // Store the token for later use
+      const placeId = getPlaceIdFromURL();
       fetchPlaceDetails(token, placeId);
   }
 }
@@ -119,10 +120,25 @@ function checkAuthentication() {
 function getCookie(name) {
   // Function to get a cookie value by its name
   // Your code here
+  const output = document.getElementById("cookies");
+  output.textContent = `> ${document.cookie}`;
 }
 
 async function fetchPlaceDetails(token, placeId) {
   // Make a GET request to fetch place details
+    const response = await fetch(`https://your-api-url/places/${placeId}`, {
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    });
+    if (response.ok) {
+      const place = await response.json();
+      displayPlaceDetails(place);
+    } else {
+      console.error('Error API :', response.statusText);
+      alert('Error');
+}
+
   // Include the token in the Authorization header
   // Handle the response and pass the data to displayPlaceDetails function
 }
