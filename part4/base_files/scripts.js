@@ -98,31 +98,39 @@ document.getElementById('price-filter').addEventListener('change', function(even
   });
 });
 
+
 function getPlaceIdFromURL() {
-  // Extract the place ID from window.location.search
-  // Your code here
+  // recup id depuis url de la page
+  const lieu = new URLSearchParams(window.location.search);
+  return lieu.get('place_id');
 }
 
+// verif si utilisateur connecter
 function checkAuthentication() {
-  const token = getCookie('token');
+  
+  const token = getCookie('token');//si token existe
   const addReviewSection = document.getElementById('add-review');
-
+  //no connexion no formulaire
   if (!token) {
       addReviewSection.style.display = 'none';
   } else {
       addReviewSection.style.display = 'block';
-      // Store the token for later use
+      //connexion ok recup id lieu et info
       const placeId = getPlaceIdFromURL();
       fetchPlaceDetails(token, placeId);
   }
 }
 
 function getCookie(name) {
-  // Function to get a cookie value by its name
-  // Your code here
-  const output = document.getElementById("cookies");
-  output.textContent = `> ${document.cookie}`;
+  // recup cookies nav
+  const value = `; ${document.cookie}`;
+  // find le bon cookies 
+  const parts = value.split(`; ${name}=`);
+  //return valeur cookies
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;// else nullll
 }
+
 
 async function fetchPlaceDetails(token, placeId) {
   // Make a GET request to fetch place details
@@ -148,3 +156,53 @@ function displayPlaceDetails(place) {
   // Create elements to display the place details (name, description, price, amenities and reviews)
   // Append the created elements to the place details section
 }
+
+function checkAuthentication() {
+  const token = getCookie('token');
+  if (!token) {
+      window.location.href = 'index.html';
+  }
+  return token;
+}
+
+function getCookie(name) {
+  // Function to get a cookie value by its name
+  // Your code here
+}
+
+function getPlaceIdFromURL() {
+  // Extract the place ID from window.location.search
+  // Your code here
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const reviewForm = document.getElementById('review-form');
+  const token = checkAuthentication();
+  const placeId = getPlaceIdFromURL();
+
+  if (reviewForm) {
+      reviewForm.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          // Get review text from form
+          // Make AJAX request to submit review
+          // Handle the response
+      });
+  }
+});
+
+async function submitReview(token, placeId, reviewText) {
+  // Make a POST request to submit review data
+  // Include the token in the Authorization header
+  // Send placeId and reviewText in the request body
+  // Handle the response
+}
+
+function handleResponse(response) {
+  if (response.ok) {
+      alert('Review submitted successfully!');
+      // Clear the form
+  } else {
+      alert('Failed to submit review');
+  }
+}
+
