@@ -167,12 +167,18 @@ function checkAuthentication() {
 
 function getCookie(name) {
   // Function to get a cookie value by its name
-  // Your code here
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
 }
+
 
 function getPlaceIdFromURL() {
   // Extract the place ID from window.location.search
-  // Your code here
+  const params = new URLSearchParams(window.location.search);
+  const placeId = params.get('place_id');
+  return placeId ? placeId : null;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -184,7 +190,9 @@ document.addEventListener('DOMContentLoaded', () => {
       reviewForm.addEventListener('submit', async (event) => {
           event.preventDefault();
           // Get review text from form
+          const reviewText = document.getElementById('review-text').value;
           // Make AJAX request to submit review
+          await submitReview(token, placeId, reviewText);
           // Handle the response
       });
   }
