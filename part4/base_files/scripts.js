@@ -152,7 +152,8 @@ async function fetchPlaceDetails(token, placeId) {
 }
 
 function displayPlaceDetails(place) {
-  // Clear the current content of the place details section
+  // Clear the current content of the place details 
+  const placeDetailsSection = document.getElementById('place-details');
   // Create elements to display the place details (name, description, price, amenities and reviews)
   // Append the created elements to the place details section
 }
@@ -197,11 +198,23 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function submitReview(token, placeId, reviewText) {
-  // Make a POST request to submit review data
-  // Include the token in the Authorization header
-  // Send placeId and reviewText in the request body
-  // Handle the response
+  const response = await fetch(`https://your-api-url/places/${placeId}/reviews`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ review: reviewText }),
+  });
+
+  if (response.ok) {
+    alert('Succes !');
+    document.getElementById('review-text').value = '';
+  } else {
+    alert('Error : ' + response.statusText);
+  }
 }
+
 
 function handleResponse(response) {
   if (response.ok) {
