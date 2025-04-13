@@ -175,11 +175,9 @@ function getCookie(name) {
 
 
 function getPlaceIdFromURL() {
-  // Extract the place ID from window.location.search
-  const params = new URLSearchParams(window.location.search);
-  const placeId = params.get('place_id');
-  return placeId ? placeId : null;
+  return new URLSearchParams(window.location.search).get('place_id') || null;
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const reviewForm = document.getElementById('review-form');
