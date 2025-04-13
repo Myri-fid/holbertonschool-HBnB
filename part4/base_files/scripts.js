@@ -220,6 +220,7 @@ function handleResponse(response) {
   if (response.ok) {
       alert('Review submitted successfully!');
       // Clear the form
+      document.getElementById('review-form').reset();
   } else {
       alert('Failed to submit review');
   }
